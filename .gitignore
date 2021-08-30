@@ -6,7 +6,7 @@
 *.dylibA
 
 # Ignore vscode files
-# .vscode
+.vscode
 
 # Test binary, built with `go test -c`
 *.test

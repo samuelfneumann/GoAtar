@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 
-	"gonum.org/v1/gonum/mat"
+	"github.com/samuelfneumann/goatar/game"
+	"github.com/samuelfneumann/goatar/game/freeway"
 )
 
 const NumActions int = 6 // All games have 6 actions
@@ -14,31 +15,22 @@ type gameName string
 const (
 	Asterix       gameName = "asterix"
 	SpaceInvaders gameName = "space invaders"
+	Freeway       gameName = "freeway"
 )
 
-func make(game gameName, difficultyRamping bool, seed int64) (Game, error) {
+func make(game gameName, difficultyRamping bool, seed int64) (game.Game, error) {
 	switch game {
-	case Asterix:
+	case Freeway:
 		// create game
-		return nil, fmt.Errorf("make: no such game")
+		return freeway.New(difficultyRamping, seed)
 	default:
 		return nil, fmt.Errorf("make: no such game")
 	}
 }
 
-// Concrete implementations of games
-type Game interface {
-	Act(int) (float64, bool)
-	State() []*mat.Dense
-	Reset()
-	StateShape() []int
-	NChannels() int
-	MinimalActionSet() []int
-}
-
 // Wrapepr that uses Template
 type Environment struct {
-	Game
+	game.Game
 	gameName          gameName
 	rng               *rand.Rand
 	nChannels         int
@@ -67,7 +59,7 @@ func New(name gameName, stickyActionsProb float64, difficultyRamping bool,
 	}, nil
 }
 
-func (e *Environment) Act(a int) (float64, bool) {
+func (e *Environment) Act(a int) (float64, bool, error) {
 	if e.rng.Float64() < e.stickyActionsProb {
 		a = e.lastAction
 	}
