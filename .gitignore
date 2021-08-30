@@ -3,7 +3,10 @@
 *.exe~
 *.dll
 *.so
-*.dylib
+*.dylibA
+
+# Ignore vscode files
+# .vscode
 
 # Test binary, built with `go test -c`
 *.test
