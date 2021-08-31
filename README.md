@@ -1,5 +1,5 @@
 # GoAtar
-GoAtar is a `Go` implementation of [MinAtar](https://github.com/kenjyoung/MinAtar) written completely in `Go`. This module does not provide bindings for [MinAtar](https://github.com/kenjyoung/MinAtar), but rather is a transliteration of [MinAtar](https://github.com/kenjyoung/MinAtar) in `Go`.	
+GoAtar is a `Go` implementation of [MinAtar](https://github.com/kenjyoung/MinAtar) written completely in `Go`. This module does not provide bindings for [MinAtar](https://github.com/kenjyoung/MinAtar), but rather is a transliteration of [MinAtar](https://github.com/kenjyoung/MinAtar) in `Go`.
 
 From the [MinAtar](https://github.com/kenjyoung/MinAtar) Github page:
 > MinAtar is inspired by the Arcade Learning Environment (Bellemare et. al. 2013) but simplifies the games to make experimentation with the environments more accessible and efficient. Currently, MinAtar provides analogues to five Atari games which play out on a 10x10 grid. The environments provide a 10x10xn state representation, where each of the n channels correspond to a game-specific object, such as ball, paddle and brick in the game Breakout.
@@ -82,17 +82,3 @@ year = "2019"
 Bellemare, M. G., Naddaf, Y., Veness, J., & Bowling, M. (2013). The arcade learning environment: An evaluation platform for general agents. *Journal of Artificial Intelligence Research*, 47, 253–279.
 
 Mnih, V., Kavukcuoglu, K., Silver, D., Rusu, A. A., Veness, J., Bellemare, M. G., . . . others (2015). Human-level control through deep reinforcement learning. *Nature*, 518(7540), 529.
-
-## License
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.

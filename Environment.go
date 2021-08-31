@@ -1,37 +1,42 @@
+// Package goatar implement minimal Atari games that run on a 10x10
+// grid. This package was inspired by MinAtar, which can be found at:
+// https://github.com/kenjyoung/MinAtar.
 package goatar
 
 import (
 	"fmt"
 	"math/rand"
 
-	"github.com/samuelfneumann/goatar/game"
-	"github.com/samuelfneumann/goatar/game/freeway"
+	"github.com/samuelfneumann/goatar/internal/game"
+	"github.com/samuelfneumann/goatar/internal/game/freeway"
 )
 
 const NumActions int = 6 // All games have 6 actions
 
-type gameName string
+//
+type GameName string
 
 const (
-	Asterix       gameName = "asterix"
-	SpaceInvaders gameName = "space invaders"
-	Freeway       gameName = "freeway"
+	Asterix       GameName = "Asterix"
+	SpaceInvaders GameName = "Space Invaders"
+	Freeway       GameName = "Freeway"
 )
 
-func make(game gameName, difficultyRamping bool, seed int64) (game.Game, error) {
+// make is a static factory for creating a game.Game for an environment
+func make(game GameName, difficultyRamping bool, seed int64) (game.Game, error) {
 	switch game {
 	case Freeway:
-		// create game
 		return freeway.New(difficultyRamping, seed)
 	default:
-		return nil, fmt.Errorf("make: no such game")
+		return nil, fmt.Errorf("no such game")
 	}
 }
 
-// Wrapepr that uses Template
+// Environment implements an environment that an agent can interact
+// with.
 type Environment struct {
 	game.Game
-	gameName          gameName
+	gameName          GameName
 	rng               *rand.Rand
 	nChannels         int
 	stickyActionsProb float64
@@ -39,11 +44,13 @@ type Environment struct {
 	closed            bool
 }
 
-func New(name gameName, stickyActionsProb float64, difficultyRamping bool,
+// New creates and returns a new Environment of the game specified
+// by name.
+func New(name GameName, stickyActionsProb float64, difficultyRamping bool,
 	seed int64) (*Environment, error) {
 	game, err := make(name, difficultyRamping, seed)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("new: %v", err)
 	}
 
 	rng := rand.New(rand.NewSource(seed))
@@ -59,6 +66,7 @@ func New(name gameName, stickyActionsProb float64, difficultyRamping bool,
 	}, nil
 }
 
+// Act takes one environmental action
 func (e *Environment) Act(a int) (float64, bool, error) {
 	if e.rng.Float64() < e.stickyActionsProb {
 		a = e.lastAction
@@ -67,10 +75,12 @@ func (e *Environment) Act(a int) (float64, bool, error) {
 	return e.Game.Act(a)
 }
 
+// NumActions returns the total number of available actions
 func (e *Environment) NumActions() int {
 	return NumActions
 }
 
+// GameName returns the name of the game
 func (e *Environment) GameName() string {
 	return string(e.gameName)
 }

@@ -5,7 +5,7 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/samuelfneumann/goatar/game"
+	"github.com/samuelfneumann/goatar/internal/game"
 	"gonum.org/v1/gonum/mat"
 )
 
@@ -191,12 +191,16 @@ func (f *Freeway) Act(a int) (float64, bool, error) {
 func (f *Freeway) randomizeCars(init bool) {
 	var directions [rows]float64
 	for i := range directions {
-		directions[i] = float64(f.rng.Intn(2) - 1) // +/- 1
+		if float64(f.rng.Intn(2)-1) == 0 {
+			directions[i] = -1.0
+		} else {
+			directions[i] = 1.0
+		}
 	}
 
 	var speeds [rows]float64
 	for i := range speeds {
-		speeds[i] = directions[i] * float64(f.rng.Intn(6))
+		speeds[i] = directions[i] * float64(f.rng.Intn(4)+1)
 	}
 
 	if init {
