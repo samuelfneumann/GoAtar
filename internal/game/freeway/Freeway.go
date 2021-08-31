@@ -1,3 +1,19 @@
+// Package freeway implements the Freeway game.
+//
+// "The player begins at the bottom of the screen and the motion is
+// restricted to travelling up and down. Player speed is also
+// restricted such that the player can only move every 3 frames.
+// A reward of +1 is given when the player reaches the top of the
+// screen, at which point the player is returned to the bottom. Cars
+// travel horizontally on the screen and teleport to the other side when
+// the edge is reached. When hit by a car, the player is returned to the
+// bottom of the screen. Car direction and speed is indicated by 5 trail
+// channels. The location of the trail gives direction while the specific
+// channel indicates how frequently the car moves (from once every frame
+// to once every 5 frames). Each time the player successfully reaches
+// the top of the screen, the car speeds are randomized. Termination
+// occurs after 2500 frames have elapsed."
+//		- MinAtar (https://github.com/kenjyoung/MinAtar)
 package freeway
 
 import (
@@ -10,31 +26,55 @@ import (
 )
 
 const (
-	PlayerSpeed float64 = 3.0
-	TimeLimit   int     = 2500
+	playerSpeed float64 = 3.0
+	timeLimit   int     = 2500
 
 	// Rows and columns for underlying state matrix
 	rows int = 8
 	cols int = 4
 
 	// Rows and columns for observation matrix
-	observationRows int = 10
-	observationCols int = 10
+	observationRows int = rows + 2
+	observationCols int = rows + 2
 )
 
+// Freeway implements the Freeway game. In this game, an agent must
+// travel to the top of the screen without colliding with any cars.
+//
+// See the package documentation for more details.
+//
+// Underlying state is represented by an integer position of the agent
+// (also termed "chicken") and a matrix of information on cars. Each
+// row i of the matrix cars refers to the information for car at
+// row i in the state observation (recall the game consists of cars
+// with fixed Y positions - rows - travelling horizontally). The number
+// of rows in this matrix (equivalently, the number of cars in the
+// game) is determined by the rows constant. For row i, each column
+// has the following meaning:
+//
+//	Column		Meaning
+//	  1			Y position of car i (this will be constant)
+//	  2			X position of car i
+//	  3			Speed of car i
+//	  4			Direction of movement of car i
+//
+// State observations are constructed based on this underlying state
+// representation.
 type Freeway struct {
 	channels  map[string]int
 	actionMap []rune
 	rng       *rand.Rand
-	cars      *mat.Dense
 
-	position       int
+	cars     *mat.Dense // Matrix representing info on each car
+	position int        // Position of agent
+
 	moveTimer      float64
 	terminateTimer int
 	terminal       bool
 }
 
-func New(difficultyRamping bool, seed int64) (game.Game, error) {
+// New returns a new Freeway game
+func New(_ bool, seed int64) (game.Game, error) {
 	channels := map[string]int{
 		"chicken": 0,
 		"car":     1,
@@ -57,14 +97,17 @@ func New(difficultyRamping bool, seed int64) (game.Game, error) {
 	return freeway, nil
 }
 
+// State returns the current state observation
 func (f *Freeway) State() ([]*mat.Dense, error) {
 	state := make([]*mat.Dense, f.NChannels())
 	for i := 0; i < f.NChannels(); i++ {
 		state[i] = mat.NewDense(observationRows, observationCols, nil)
 	}
 
+	// Set the agent's position in the observation matrix
 	state[f.channels["chicken"]].Set(f.position, 4, 1.)
 
+	// Set each car's position in the observation matrix
 	for i := 0; i < 8; i++ {
 		car := f.cars.RowView(i)
 		state[f.channels["car"]].Set(int(car.AtVec(1)), int(car.AtVec(0)), 1.)
@@ -82,6 +125,8 @@ func (f *Freeway) State() ([]*mat.Dense, error) {
 			backX = 0
 		}
 
+		// Find the channel at which to place the car. Each channel
+		// refers to a different speed.
 		var trail int
 		switch int(math.Abs(car.AtVec(3))) {
 		case 1:
@@ -109,10 +154,14 @@ func (f *Freeway) State() ([]*mat.Dense, error) {
 	return state, nil
 }
 
+// DifficultyRamp returns the current difficulty level.
+// In Freeway, difficulty ramping is not allowed, so this method
+// always returns 0.
 func (f *Freeway) DifficultyRamp() int {
 	return 0
 }
 
+// Act takes a single environmental step given an action a.
 func (f *Freeway) Act(a int) (float64, bool, error) {
 	reward := 0.0
 	if f.terminal {
@@ -127,14 +176,14 @@ func (f *Freeway) Act(a int) (float64, bool, error) {
 	// Update the environment with respect to the action
 	action := f.actionMap[a]
 	if action == 'u' && f.moveTimer == 0 {
-		f.moveTimer = PlayerSpeed
+		f.moveTimer = playerSpeed
 		if 0 > f.position-1 {
 			f.position = 0
 		} else {
 			f.position--
 		}
 	} else if action == 'd' && f.moveTimer == 0 {
-		f.moveTimer = PlayerSpeed
+		f.moveTimer = playerSpeed
 		if 9 < f.position {
 			f.position = 9
 		} else {
@@ -188,6 +237,8 @@ func (f *Freeway) Act(a int) (float64, bool, error) {
 	return reward, f.terminal, nil
 }
 
+// randomizeCars randomizes all the car directions and speed for the
+// start of a new episode.
 func (f *Freeway) randomizeCars(init bool) {
 	var directions [rows]float64
 	for i := range directions {
@@ -220,22 +271,27 @@ func (f *Freeway) randomizeCars(init bool) {
 	}
 }
 
+// Reset resets the environment to some starting state.
 func (f *Freeway) Reset() {
 	f.randomizeCars(true)
 	f.position = 9
-	f.moveTimer = PlayerSpeed
-	f.terminateTimer = TimeLimit
+	f.moveTimer = playerSpeed
+	f.terminateTimer = timeLimit
 	f.terminal = false
 }
 
+// StateShape returns the shape of the state observations
 func (f *Freeway) StateShape() []int {
 	return []int{observationRows, observationCols, f.NChannels()}
 }
 
+// NChannels returns the number of channels in each state observation
 func (f *Freeway) NChannels() int {
 	return len(f.channels)
 }
 
+// MinimalActionSet returns the actions which actually have an effect
+// on the environment.
 func (f *Freeway) MinimalActionSet() []int {
 	minimalActions := []rune{'n', 'u', 'd'}
 	minimalIntActions := make([]int, len(minimalActions))
@@ -247,6 +303,5 @@ func (f *Freeway) MinimalActionSet() []int {
 			}
 		}
 	}
-
 	return minimalIntActions
 }
