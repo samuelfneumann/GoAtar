@@ -85,8 +85,19 @@ year = "2019"
 }
 ```
 
-
 ## References
 Bellemare, M. G., Naddaf, Y., Veness, J., & Bowling, M. (2013). The arcade learning environment: An evaluation platform for general agents. *Journal of Artificial Intelligence Research*, 47, 253–279.
 
 Mnih, V., Kavukcuoglu, K., Silver, D., Rusu, A. A., Veness, J., Bellemare, M. G., . . . others (2015). Human-level control through deep reinforcement learning. *Nature*, 518(7540), 529.
+
+# ToDo
+- [ ] Instead of having returned state observations as `[]*mat.Dense`, it
+would be **way** more efficient to just use `[]float64`. Otherwise, when the
+state observation is used as input to a neural net for example, you'd first
+have to concatenate all the `[]*mat.Dense` into a single `[]float64`, then
+create the input tensor. This would result in a **lot** of copying of data.
+Instead, work directly with `[]float64`'s, then no data will ever need to be
+copied. It will be up to the user to reshape the data though, which can be
+done with the `StateShape()` method to get the shape of the states in
+`(channels, rows, cols)` form. We could even have a separate method called
+`ChannelAt(i int)` which would return the matrix data at channel `i`.
