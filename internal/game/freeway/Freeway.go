@@ -282,7 +282,7 @@ func (f *Freeway) Reset() {
 
 // StateShape returns the shape of the state observations
 func (f *Freeway) StateShape() []int {
-	return []int{observationRows, observationCols, f.NChannels()}
+	return []int{f.NChannels(), observationRows, observationCols}
 }
 
 // NChannels returns the number of channels in each state observation
