@@ -53,8 +53,8 @@ const (
 // has the following meaning:
 //
 //	Column		Meaning
-//	  1			Y position of car i (this will be constant)
-//	  2			X position of car i
+//	  1			X position of car i
+//	  2			Y position of car i (this will be constant)
 //	  3			Speed of car i
 //	  4			Direction of movement of car i
 //
