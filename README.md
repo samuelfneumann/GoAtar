@@ -20,6 +20,14 @@ To use GoAtar, you'll need `Go` 1.16 or later. GoAtar does not provide any imple
 go get -u github.com/samuelfneumann/goatar
 ```
 
+## Major differences between GoAtar and [MinAtar](https://github.com/kenjyoung/MinAtar)
+* GoAtar `StateShape()` returns the state shape as `(number of channels,
+number of rows, number of cols)` in the state observation tensor. MinAtar
+returns `(number of rows, number of cols, number of channels)`. This
+is due to the fact that no n-dimensional arrays exist in GoNum. Instead,
+states are representd as a `[]*mat.Dense`, where the number of elements in
+the slice is equal to the number of channels.
+
 ## Visualizing the Environments
 Currently not supported.
 
