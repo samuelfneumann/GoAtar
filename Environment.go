@@ -8,25 +8,32 @@ import (
 	"math/rand"
 
 	"github.com/samuelfneumann/goatar/internal/game"
+	"github.com/samuelfneumann/goatar/internal/game/breakout"
 	"github.com/samuelfneumann/goatar/internal/game/freeway"
 )
 
 const NumActions int = 6 // All games have 6 actions
 
 //
-type GameName string
+type GameName struct {
+	string // Hide the internals so that new GameNames can't be created
+}
 
-const (
-	Asterix       GameName = "Asterix"
-	SpaceInvaders GameName = "Space Invaders"
-	Freeway       GameName = "Freeway"
+var (
+	Asterix       GameName = GameName{"Asterix"}
+	SpaceInvaders GameName = GameName{"Space Invaders"}
+	Freeway       GameName = GameName{"Freeway"}
+	Breakout      GameName = GameName{"Breakout"}
 )
 
 // make is a static factory for creating a game.Game for an environment
-func make(game GameName, difficultyRamping bool, seed int64) (game.Game, error) {
+func make(game GameName, difficultyRamping bool, seed int64) (game.Game,
+	error) {
 	switch game {
 	case Freeway:
 		return freeway.New(difficultyRamping, seed)
+	case Breakout:
+		return breakout.New(difficultyRamping, seed)
 	default:
 		return nil, fmt.Errorf("no such game")
 	}
@@ -82,5 +89,5 @@ func (e *Environment) NumActions() int {
 
 // GameName returns the name of the game
 func (e *Environment) GameName() string {
-	return string(e.gameName)
+	return e.gameName.string
 }
