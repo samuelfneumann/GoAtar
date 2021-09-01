@@ -48,8 +48,8 @@ e := // New GoAtar environment
 // No data is every copied - unlike in Python
 t := tensor.New(
     tensor.WithShape(e.StateShape()...),
-    tensor.WithBacking(e.State(),),
-    )
+    tensor.WithBacking(e.State()),
+)
 
 prod := func(ints ...int) int {
     product := 1

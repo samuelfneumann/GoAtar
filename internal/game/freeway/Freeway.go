@@ -306,7 +306,7 @@ func (f *Freeway) MinimalActionSet() []int {
 	return minimalIntActions
 }
 
-// Channel returns the channel at index i
+// Channel returns the state observation channel at index i
 func (f *Freeway) Channel(i int) ([]float64, error) {
 	if i >= f.NChannels() {
 		return nil, fmt.Errorf("channel: index out of range [%v] with "+

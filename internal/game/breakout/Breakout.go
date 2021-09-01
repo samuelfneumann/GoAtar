@@ -1,3 +1,14 @@
+// Package breakout implements the Breakout game.
+//
+//The player controls a paddle on the bottom of the screen and must
+// bounce a ball to break 3 rows of bricks along the top of the screen.
+// A reward of +1 is given for each brick broken by the ball. When all
+// bricks are cleared another 3 rows are added. The ball travels only
+// along diagonals. When the ball hits the paddle it is bounced either
+// to the left or right depending on the side of the paddle hit. When
+// the ball hits a wall or brick, it is reflected. Termination occurs
+// when the ball hits the bottom of the screen. The ball's direction is
+// indicated by a trail channel.
 package breakout
 
 import (
@@ -13,6 +24,28 @@ const (
 	cols int = rows
 )
 
+// Breakout implements the Breakout game. In this game, the player must
+// destroy all bricks at the top of the screen by bouncing a ball off
+// a paddle.
+//
+// See the package documentation for more details.
+//
+// Undelying state is represetned by the ball's position the direction
+// that the ball is travelling, the position of the paddle, and a
+// matrix of bricks. Each row in this matrix refers to the row of
+// pixels on the screen. If column i in row j is non-zero, this means
+// that the brick at position (i, j) has not been broken (position is
+// measured from the top left pixel as the origin).
+//
+// State observations consist of a 3-tensor of (channels, rows, cols).
+// The first channel is a one-hot matrix, showing the position of the
+// paddle. The second channel is a one-hot matrix showing the position
+// of the ball. The third channel is a matrix of 0's and 1's which
+// describe the trail behind the ball and allows the agent to infer
+// the direction the ball is moving. The fourth and final channel is
+// a matrix of 0's and 1's representing where unbroken bricks currently
+// are. Values of 0 indicate that no brick exists at that position,
+// while values of 1 indicate that brick exists at that position.
 type Breakout struct {
 	channels  map[string]int
 	actionMap []rune
@@ -31,6 +64,7 @@ type Breakout struct {
 	terminal bool
 }
 
+// New returns a new Breakout game
 func New(_ bool, seed int64) (game.Game, error) {
 	channels := map[string]int{
 		"paddle": 0,
@@ -51,6 +85,9 @@ func New(_ bool, seed int64) (game.Game, error) {
 	return breakout, nil
 }
 
+// Act takes a single environmental step given some action and returns
+// the reward for that action as well as a boolean indicating if the
+// game is over.
 func (b *Breakout) Act(a int) (float64, bool, error) {
 	if a >= len(b.actionMap) {
 		return -1, false, fmt.Errorf("act: invalid action %v ∉ [0, )",
@@ -96,6 +133,7 @@ func (b *Breakout) Act(a int) (float64, bool, error) {
 		return 0, false, fmt.Errorf("act: no such ball direction %v", b.ballDir)
 	}
 
+	// Break bricks
 	strikeToggle := false
 	if newX < 0 || newX > rows-1 {
 		newX = clipInt(newX, 0, rows-1)
@@ -144,6 +182,7 @@ func (b *Breakout) Act(a int) (float64, bool, error) {
 	return reward, b.terminal, nil
 }
 
+// State returns the current state observation
 func (b *Breakout) State() ([]float64, error) {
 	state := make([]float64, rows*cols*b.NChannels())
 
@@ -156,6 +195,7 @@ func (b *Breakout) State() ([]float64, error) {
 	return state, nil
 }
 
+// Reset resets the environment to some starting state
 func (b *Breakout) Reset() {
 	b.ballY = 3
 	b.ballStart = b.rng.Intn(2)
@@ -164,6 +204,7 @@ func (b *Breakout) Reset() {
 	b.position = 4
 	b.brickMap = mat.NewDense(rows, cols, nil)
 
+	// Set the bricks
 	bricks := make([]float64, cols)
 	for i := range bricks {
 		bricks[i] = 1.0
@@ -178,18 +219,24 @@ func (b *Breakout) Reset() {
 	b.terminal = false
 }
 
+// NChannels returns the number of channels in the state observation
 func (b *Breakout) NChannels() int {
 	return len(b.channels)
 }
 
+// DifficultyRamp returns the current difficulty level.
+// In Breakout, difficulty ramping is not allowed, so this method
+// always returns 0.
 func (b *Breakout) DifficultyRamp() int {
 	return 0
 }
 
+// StateShape returns the shape of state observations
 func (b *Breakout) StateShape() []int {
 	return []int{rows, cols, b.NChannels()}
 }
 
+// Channel returns the state observation channel at index i
 func (b *Breakout) Channel(i int) ([]float64, error) {
 	if i >= b.NChannels() {
 		return nil, fmt.Errorf("channel: index out of range [%v] with "+
@@ -223,6 +270,7 @@ func (b *Breakout) MinimalActionSet() []int {
 	return minimalIntActions
 }
 
+// maxInt returns the maximum int in a sequence of ints
 func maxInt(ints ...int) int {
 	max := ints[0]
 	for i := 1; i < len(ints); i++ {
@@ -233,6 +281,7 @@ func maxInt(ints ...int) int {
 	return max
 }
 
+// clipInt clips an integer to be in the interval [min, max]
 func clipInt(value, min, max int) int {
 	if value < min {
 		return min
@@ -242,6 +291,8 @@ func clipInt(value, min, max int) int {
 	return value
 }
 
+// containsNonZero returns whether a matrix contains any non-zero
+//elements
 func containsNonZero(matrix *mat.Dense) bool {
 	for _, val := range matrix.RawMatrix().Data {
 		if val != 0.0 {
