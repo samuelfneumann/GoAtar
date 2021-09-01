@@ -98,19 +98,18 @@ func New(_ bool, seed int64) (game.Game, error) {
 }
 
 // State returns the current state observation
-func (f *Freeway) State() ([]*mat.Dense, error) {
-	state := make([]*mat.Dense, f.NChannels())
-	for i := 0; i < f.NChannels(); i++ {
-		state[i] = mat.NewDense(observationRows, observationCols, nil)
-	}
+func (f *Freeway) State() ([]float64, error) {
+	r, c := observationRows, observationCols
+	state := make([]float64, r*c*f.NChannels())
 
 	// Set the agent's position in the observation matrix
-	state[f.channels["chicken"]].Set(f.position, 4, 1.)
+	state[r*c*f.channels["chicken"]+f.position*c+4] = 1.0
 
 	// Set each car's position in the observation matrix
 	for i := 0; i < 8; i++ {
 		car := f.cars.RowView(i)
-		state[f.channels["car"]].Set(int(car.AtVec(1)), int(car.AtVec(0)), 1.)
+		y, x := int(car.AtVec(1)), int(car.AtVec(0))
+		state[r*c*f.channels["car"]+y*c+x] = 1.0
 
 		var backX int
 		if car.AtVec(3) > 0 {
@@ -149,7 +148,8 @@ func (f *Freeway) State() ([]*mat.Dense, error) {
 				int(math.Abs(car.AtVec(3))))
 		}
 
-		state[trail].Set(int(car.AtVec(1)), backX, 1)
+		backY := int(car.AtVec(1))
+		state[r*c*trail+backY*c+backX] = 1.0
 	}
 	return state, nil
 }
@@ -282,7 +282,7 @@ func (f *Freeway) Reset() {
 
 // StateShape returns the shape of the state observations
 func (f *Freeway) StateShape() []int {
-	return []int{f.NChannels(), observationRows, observationCols}
+	return []int{observationRows, observationCols, f.NChannels()}
 }
 
 // NChannels returns the number of channels in each state observation
@@ -304,4 +304,22 @@ func (f *Freeway) MinimalActionSet() []int {
 		}
 	}
 	return minimalIntActions
+}
+
+// Channel returns the channel at index i
+func (f *Freeway) Channel(i int) ([]float64, error) {
+	if i >= f.NChannels() {
+		return nil, fmt.Errorf("channel: index out of range [%v] with "+
+			"length %v", i, f.NChannels())
+	} else if i < 0 {
+		return nil, fmt.Errorf("channel: invalid slice index %v (index "+
+			"must be non-negative)", i)
+	}
+
+	state, err := f.State()
+	if err != nil {
+		return nil, fmt.Errorf("channel: %v", err)
+	}
+
+	return state[rows*cols*i : rows*cols*(i+1)], nil
 }

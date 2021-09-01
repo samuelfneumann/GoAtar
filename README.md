@@ -28,6 +28,43 @@ is due to the fact that no n-dimensional arrays exist in GoNum. Instead,
 states are representd as a `[]*mat.Dense`, where the number of elements in
 the slice is equal to the number of channels.
 
+* `Go` does not have n-dimensional arrays. There is a
+[tensor package](https://pkg.go.dev/gorgonia.org/tensor), but the efficiency of
+using n-dimensional arrays is dependent on
+[hardware and the operations being done](https://github.com/gonum/matrix/issues/400).
+Because of this, the tensor package may not be as efficient as using `[]float64`
+directly. Therefore, this module returns state observations as (single dimensional)
+`[]float64`, and it is up to the user to reshape this slice (which can
+be done using the sizes returned by `StateShape()`). This should be an
+efficient operation for both [gorgonia/tensor](https://pkg.go.dev/gorgonia.org/tensor)
+and [gonum/mat](https://pkg.go.dev/gonum.org/v1/gonum/mat) because the
+underlying `[]float64` for a matrix or tensor can easily be set: no copying
+of data is needed (which is much more efficient than the `Python` implementation
+of using `bool`s to represent positions). For example:
+```
+e := // New GoAtar environment
+
+// Gorgonia tensors can be efficiently constructed from the State() method.
+// No data is every copied - unlike in Python
+t := tensor.New(
+    tensor.WithShape(e.StateShape()...),
+    tensor.WithBacking(e.State(),),
+    )
+
+prod := func(ints ...int) int {
+    product := 1
+    for _, value := range ints {
+        product *= value
+    }
+    return product
+}
+v := mat.NewVecDense(prod(e.StateShape()..., e.State()))
+
+r, c, _ := e.StateShape()
+ch := 1 // The channel to get
+m := mat.NewDense(r, c, e.Channel(ch))
+```
+
 ## Visualizing the Environments
 Currently not supported.
 
@@ -89,15 +126,3 @@ year = "2019"
 Bellemare, M. G., Naddaf, Y., Veness, J., & Bowling, M. (2013). The arcade learning environment: An evaluation platform for general agents. *Journal of Artificial Intelligence Research*, 47, 253–279.
 
 Mnih, V., Kavukcuoglu, K., Silver, D., Rusu, A. A., Veness, J., Bellemare, M. G., . . . others (2015). Human-level control through deep reinforcement learning. *Nature*, 518(7540), 529.
-
-# ToDo
-- [ ] Instead of having returned state observations as `[]*mat.Dense`, it
-would be **way** more efficient to just use `[]float64`. Otherwise, when the
-state observation is used as input to a neural net for example, you'd first
-have to concatenate all the `[]*mat.Dense` into a single `[]float64`, then
-create the input tensor. This would result in a **lot** of copying of data.
-Instead, work directly with `[]float64`'s, then no data will ever need to be
-copied. It will be up to the user to reshape the data though, which can be
-done with the `StateShape()` method to get the shape of the states in
-`(channels, rows, cols)` form. We could even have a separate method called
-`ChannelAt(i int)` which would return the matrix data at channel `i`.
