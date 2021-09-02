@@ -83,12 +83,28 @@ func (s *swimmer) direction() int {
 	return s.moveDirection
 }
 
+func (s *swimmer) setDirection(right bool) {
+	if right {
+		s.moveDirection = 1
+	} else {
+		s.moveDirection = -1
+	}
+}
+
 func (s *swimmer) y() int {
 	return s.yPos
 }
 
+func (s *swimmer) setY(pos int) {
+	s.yPos = pos
+}
+
 func (s *swimmer) x() int {
 	return s.xPos
+}
+
+func (s *swimmer) setX(pos int) {
+	s.xPos = pos
 }
 
 func (s *swimmer) orientedRight() bool {
@@ -109,4 +125,71 @@ func (s *swimmer) decrementMoveTimer() {
 
 func (s *swimmer) setMoveTimer(val int) {
 	s.moveTimer = val
+}
+
+type player struct {
+	*submarine
+	remainingOxygen int
+	diverCount      int
+}
+
+func newPlayer(x, y int, right bool, moveTimer, shotTimer,
+	oxygen int) *player {
+	sub := newSubmarine(x, y, right, moveTimer, shotTimer)
+
+	return &player{
+		submarine:       sub,
+		remainingOxygen: oxygen,
+		diverCount:      0,
+	}
+}
+
+func (p *player) setDivers(num int) {
+	p.diverCount = num
+}
+
+func (p *player) divers() int {
+	return p.diverCount
+}
+
+func (p *player) decrementDivers() {
+	p.setDivers(p.divers() - 1)
+}
+
+func (p *player) incrementDivers() {
+	p.setDivers(p.divers() + 1)
+}
+
+func (p *player) oxygen() int {
+	return p.remainingOxygen
+}
+
+func (p *player) setOxygen(level int) {
+	p.remainingOxygen = level
+}
+
+func (p *player) decrementOxygen() {
+	p.setOxygen(p.oxygen() - 1)
+}
+
+func (p *player) incrementOxygen() {
+	p.setOxygen(p.oxygen() + 1)
+}
+
+func (p *player) moveLeft() {
+	p.setX(maxInt(0, p.x()-1))
+	p.setDirection(false)
+}
+
+func (p *player) moveRight() {
+	p.setX(minInt(rows-1, p.x()+1))
+	p.setDirection(true)
+}
+
+func (p *player) moveDown() {
+	p.setY(minInt(rows-2, p.y()+1))
+}
+
+func (p *player) moveUp() {
+	p.setY(maxInt(0, p.y()-1))
 }

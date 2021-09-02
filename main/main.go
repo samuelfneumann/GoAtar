@@ -20,9 +20,6 @@ func main() {
 	state, _ = env.Channel(0)
 	fmt.Println(state, len(state), env.NChannels())
 	fmt.Println()
-	for i := 0; i < 4; i++ {
-		env.Act(1)
-	}
 
 	state, _ = env.Channel(0)
 	fmt.Println(state, len(state), env.NChannels())
