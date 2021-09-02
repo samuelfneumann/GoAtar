@@ -10,6 +10,7 @@ import (
 	"github.com/samuelfneumann/goatar/internal/game"
 	"github.com/samuelfneumann/goatar/internal/game/breakout"
 	"github.com/samuelfneumann/goatar/internal/game/freeway"
+	"github.com/samuelfneumann/goatar/internal/game/seaquest"
 )
 
 const NumActions int = 6 // All games have 6 actions
@@ -24,6 +25,7 @@ var (
 	SpaceInvaders GameName = GameName{"Space Invaders"}
 	Freeway       GameName = GameName{"Freeway"}
 	Breakout      GameName = GameName{"Breakout"}
+	SeaQuest      GameName = GameName{"SeaQuest"}
 )
 
 // make is a static factory for creating a game.Game for an environment
@@ -32,8 +34,13 @@ func make(game GameName, difficultyRamping bool, seed int64) (game.Game,
 	switch game {
 	case Freeway:
 		return freeway.New(difficultyRamping, seed)
+
 	case Breakout:
 		return breakout.New(difficultyRamping, seed)
+
+	case SeaQuest:
+		return seaquest.New(difficultyRamping, seed)
+
 	default:
 		return nil, fmt.Errorf("no such game")
 	}
