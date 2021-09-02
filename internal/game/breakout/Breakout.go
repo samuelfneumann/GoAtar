@@ -233,7 +233,7 @@ func (b *Breakout) DifficultyRamp() int {
 
 // StateShape returns the shape of state observations
 func (b *Breakout) StateShape() []int {
-	return []int{b.NChannels(), rows, cols}
+	return []int{rows, cols, b.NChannels()}
 }
 
 // Channel returns the state observation channel at index i
@@ -292,7 +292,7 @@ func clipInt(value, min, max int) int {
 }
 
 // containsNonZero returns whether a matrix contains any non-zero
-//elements
+// elements
 func containsNonZero(matrix *mat.Dense) bool {
 	for _, val := range matrix.RawMatrix().Data {
 		if val != 0.0 {
