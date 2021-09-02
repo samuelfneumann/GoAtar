@@ -42,15 +42,16 @@ underlying `[]float64` for a matrix or tensor can easily be set: no copying
 of data is needed (which is much more efficient than the `Python` implementation
 of using `bool`s to represent positions). For example:
 ```
-e := // New GoAtar environment
+e := ... // New GoAtar environment
 
 // Gorgonia tensors can be efficiently constructed from the State() method.
-// No data is every copied - unlike in Python
+// No data is never copied - unlike in Python
 t := tensor.New(
     tensor.WithShape(e.StateShape()...),
     tensor.WithBacking(e.State()),
 )
 
+// Create a vector of the state observation
 prod := func(ints ...int) int {
     product := 1
     for _, value := range ints {
@@ -58,8 +59,9 @@ prod := func(ints ...int) int {
     }
     return product
 }
-v := mat.NewVecDense(prod(e.StateShape()..., e.State()))
+v := mat.NewVecDense(prod(e.StateShape()...), e.State())
 
+// Create a matrix from a single channel of the state observation
 r, c, _ := e.StateShape()
 ch := 1 // The channel to get
 m := mat.NewDense(r, c, e.Channel(ch))

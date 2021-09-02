@@ -233,7 +233,7 @@ func (b *Breakout) DifficultyRamp() int {
 
 // StateShape returns the shape of state observations
 func (b *Breakout) StateShape() []int {
-	return []int{rows, cols, b.NChannels()}
+	return []int{b.NChannels(), rows, cols}
 }
 
 // Channel returns the state observation channel at index i
