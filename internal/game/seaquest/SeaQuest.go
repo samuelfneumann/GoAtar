@@ -87,12 +87,12 @@ type SeaQuest struct {
 	ramping   bool
 
 	agent     *player
-	fBullets  []*bullet
+	fBullets  []*swimmer
 	moveSpeed int
 	shotTimer int
 	atSurface bool
 
-	eBullets    []*bullet
+	eBullets    []*swimmer
 	eFish       []*swimmer
 	eSubs       []*submarine
 	eSpawnSpeed int
@@ -136,8 +136,8 @@ func New(ramping bool, seed int64) (game.Game, error) {
 func (s *SeaQuest) Reset() {
 	s.agent = newPlayer(5, 0, false, initMoveInterval, 0, maxOxygen)
 
-	s.fBullets = make([]*bullet, 0, 10)
-	s.eBullets = make([]*bullet, 0, 10)
+	s.fBullets = make([]*swimmer, 0, 10)
+	s.eBullets = make([]*swimmer, 0, 10)
 	s.eFish = make([]*swimmer, 0, 10)
 	s.eSubs = make([]*submarine, 0, 10)
 	s.divers = make([]*swimmer, 0, 10)
