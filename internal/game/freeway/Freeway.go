@@ -163,14 +163,14 @@ func (f *Freeway) DifficultyRamp() int {
 
 // Act takes a single environmental step given an action a.
 func (f *Freeway) Act(a int) (float64, bool, error) {
+	if a >= len(f.actionMap) || a < 0 {
+		return -1, false, fmt.Errorf("act: invalid action %v ∉ [0, %v)",
+			a, len(f.actionMap))
+	}
+
 	reward := 0.0
 	if f.terminal {
 		return reward, f.terminal, nil
-	}
-
-	if a >= len(f.actionMap) {
-		return -1, false, fmt.Errorf("act: invalid action %v ∉ [0, )",
-			len(f.actionMap))
 	}
 
 	// Update the environment with respect to the action

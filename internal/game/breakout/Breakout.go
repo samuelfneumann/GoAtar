@@ -30,7 +30,7 @@ const (
 //
 // See the package documentation for more details.
 //
-// Undelying state is represetned by the ball's position the direction
+// Underlying state is represetned by the ball's position the direction
 // that the ball is travelling, the position of the paddle, and a
 // matrix of bricks. Each row in this matrix refers to the row of
 // pixels on the screen. If column i in row j is non-zero, this means
@@ -89,9 +89,9 @@ func New(_ bool, seed int64) (game.Game, error) {
 // the reward for that action as well as a boolean indicating if the
 // game is over.
 func (b *Breakout) Act(a int) (float64, bool, error) {
-	if a >= len(b.actionMap) {
-		return -1, false, fmt.Errorf("act: invalid action %v ∉ [0, )",
-			len(b.actionMap))
+	if a >= len(b.actionMap) || a < 0 {
+		return -1, false, fmt.Errorf("act: invalid action %v ∉ [0, %v)",
+			a, len(b.actionMap))
 	}
 
 	reward := 0.0
