@@ -54,7 +54,8 @@ type Environment struct {
 	rng               *rand.Rand
 	nChannels         int
 	stickyActionsProb float64
-	lastAction        int
+	lastAction        int // Is this action the first?
+	firstAction       bool
 	closed            bool
 }
 
@@ -75,6 +76,7 @@ func New(name GameName, stickyActionsProb float64, difficultyRamping bool,
 		rng:               rng,
 		nChannels:         game.NChannels(),
 		stickyActionsProb: stickyActionsProb,
+		firstAction:       true,
 		lastAction:        -1,
 		closed:            false,
 	}, nil
@@ -82,7 +84,9 @@ func New(name GameName, stickyActionsProb float64, difficultyRamping bool,
 
 // Act takes one environmental action
 func (e *Environment) Act(a int) (float64, bool, error) {
-	if e.rng.Float64() < e.stickyActionsProb {
+	if e.firstAction {
+		e.firstAction = false
+	} else if e.rng.Float64() < e.stickyActionsProb {
 		a = e.lastAction
 	}
 	e.lastAction = a
