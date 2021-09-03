@@ -1,5 +1,7 @@
 package seaquest
 
+import "github.com/samuelfneumann/goatar/internal/game"
+
 // submarine implements a submarine in the SeaQuest game
 type submarine struct {
 	*swimmer
@@ -186,22 +188,22 @@ func (p *player) decrementOxygen() {
 
 // moveLeft moves the player left
 func (p *player) moveLeft() {
-	p.setX(maxInt(0, p.x()-1))
+	p.setX(game.MaxInt(0, p.x()-1))
 	p.setDirection(false)
 }
 
 // moveRight moves the player right
 func (p *player) moveRight() {
-	p.setX(minInt(rows-1, p.x()+1))
+	p.setX(game.MinInt(cols-1, p.x()+1))
 	p.setDirection(true)
 }
 
 // moveDown moves the player down
 func (p *player) moveDown() {
-	p.setY(minInt(rows-2, p.y()+1))
+	p.setY(game.MinInt(rows-2, p.y()+1))
 }
 
 // moveUp moves the player up
 func (p *player) moveUp() {
-	p.setY(maxInt(0, p.y()-1))
+	p.setY(game.MaxInt(0, p.y()-1))
 }

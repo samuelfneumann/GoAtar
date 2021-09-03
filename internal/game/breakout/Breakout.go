@@ -103,9 +103,9 @@ func (b *Breakout) Act(a int) (float64, bool, error) {
 	action := b.actionMap[a]
 	switch action {
 	case 'l':
-		b.position = maxInt(0, b.position-1)
+		b.position = game.MaxInt(0, b.position-1)
 	case 'r':
-		b.position = maxInt(rows-1, b.position+1)
+		b.position = game.MaxInt(rows-1, b.position+1)
 	}
 
 	// Update ball position
@@ -136,7 +136,7 @@ func (b *Breakout) Act(a int) (float64, bool, error) {
 	// Break bricks
 	strikeToggle := false
 	if newX < 0 || newX > rows-1 {
-		newX = clipInt(newX, 0, rows-1)
+		newX = game.ClipInt(newX, 0, rows-1)
 		b.ballDir = [4]int{1, 0, 3, 2}[b.ballDir]
 	}
 	if newY < 0 {
@@ -152,7 +152,7 @@ func (b *Breakout) Act(a int) (float64, bool, error) {
 			b.ballDir = [4]int{3, 2, 1, 0}[b.ballDir]
 		}
 	} else if newY == cols-1 {
-		if containsNonZero(b.brickMap) {
+		if game.ContainsNonZero(b.brickMap) {
 			bricks := make([]float64, cols)
 			for i := range bricks {
 				bricks[i] = 1.0
@@ -268,36 +268,4 @@ func (b *Breakout) MinimalActionSet() []int {
 		}
 	}
 	return minimalIntActions
-}
-
-// maxInt returns the maximum int in a sequence of ints
-func maxInt(ints ...int) int {
-	max := ints[0]
-	for i := 1; i < len(ints); i++ {
-		if ints[i] > max {
-			max = ints[i]
-		}
-	}
-	return max
-}
-
-// clipInt clips an integer to be in the interval [min, max]
-func clipInt(value, min, max int) int {
-	if value < min {
-		return min
-	} else if value > max {
-		return max
-	}
-	return value
-}
-
-// containsNonZero returns whether a matrix contains any non-zero
-// elements
-func containsNonZero(matrix *mat.Dense) bool {
-	for _, val := range matrix.RawMatrix().Data {
-		if val != 0.0 {
-			return true
-		}
-	}
-	return false
 }

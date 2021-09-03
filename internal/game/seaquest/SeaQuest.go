@@ -64,7 +64,7 @@ const (
 // State observations consist of a 10 x rows x cols tensor. Each of
 // the 10 channels refers to the following entities:
 //
-//	1.  Agent/player ubmarine front
+//	1.  Agent/player submarine front
 //	2.  Agent/player submarine back
 //	3.  Bullets fired by agent/player
 //	4.  Trails behind moving objects, used to infer movement direction
@@ -651,26 +651,4 @@ func (s *SeaQuest) updateEnemyFish(i int) float64 {
 	}
 
 	return reward
-}
-
-// minInt retruns the minimum int in a group of ints
-func minInt(ints ...int) int {
-	min := ints[0]
-	for i := 1; i < len(ints); i++ {
-		if ints[i] < min {
-			min = ints[i]
-		}
-	}
-	return min
-}
-
-// maxInt retruns the maximum int in a group of ints
-func maxInt(ints ...int) int {
-	max := ints[0]
-	for i := 1; i < len(ints); i++ {
-		if ints[i] > max {
-			max = ints[i]
-		}
-	}
-	return max
 }

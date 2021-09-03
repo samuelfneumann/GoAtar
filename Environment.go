@@ -11,6 +11,7 @@ import (
 	"github.com/samuelfneumann/goatar/internal/game/breakout"
 	"github.com/samuelfneumann/goatar/internal/game/freeway"
 	"github.com/samuelfneumann/goatar/internal/game/seaquest"
+	"github.com/samuelfneumann/goatar/internal/game/spaceinvaders"
 )
 
 const NumActions int = 6 // All games have 6 actions
@@ -32,14 +33,17 @@ var (
 func make(game GameName, difficultyRamping bool, seed int64) (game.Game,
 	error) {
 	switch game {
-	case Freeway:
-		return freeway.New(difficultyRamping, seed)
-
 	case Breakout:
 		return breakout.New(difficultyRamping, seed)
 
+	case Freeway:
+		return freeway.New(difficultyRamping, seed)
+
 	case SeaQuest:
 		return seaquest.New(difficultyRamping, seed)
+
+	case SpaceInvaders:
+		return spaceinvaders.New(difficultyRamping, seed)
 
 	default:
 		return nil, fmt.Errorf("no such game")

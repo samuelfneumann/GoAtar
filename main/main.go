@@ -8,7 +8,8 @@ import (
 )
 
 func main() {
-	env, err := goatar.New(goatar.SeaQuest, 0.1, false, time.Now().UnixNano())
+	env, err := goatar.New(goatar.SpaceInvaders, 0.1, false,
+		time.Now().UnixNano())
 	if err != nil {
 		panic(err)
 	}
