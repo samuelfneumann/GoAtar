@@ -57,6 +57,7 @@ func New(ramping bool, seed int64) (game.Game, error) {
 		channels:  channels,
 		actionMap: actionMap,
 		rng:       rng,
+		ramping:   ramping,
 	}
 	spaceInvaders.Reset()
 
@@ -232,7 +233,8 @@ func (s *SpaceInvaders) State() ([]float64, error) {
 }
 
 func (s *SpaceInvaders) Reset() {
-	s.agent = newPlayer(rows/2, 0)
+	start := s.rng.Intn(rows/4) + rows/2
+	s.agent = newPlayer(start, 0)
 	s.fBullets = mat.NewDense(rows, cols, nil)
 	s.eBullets = mat.NewDense(rows, cols, nil)
 

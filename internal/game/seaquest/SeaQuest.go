@@ -125,6 +125,7 @@ func New(ramping bool, seed int64) (game.Game, error) {
 		channels:  channels,
 		actionMap: actionMap,
 		rng:       rng,
+		ramping:   ramping,
 	}
 	seaquest.Reset()
 
