@@ -30,7 +30,9 @@ func (s *submarine) setShotTimer(val int) {
 
 // decrementShotTimer decrements the shot timer
 func (s *submarine) decrementShotTimer() {
-	s.shotTimer--
+	if s.shotTimer > 0 {
+		s.shotTimer--
+	}
 }
 
 // swimmer implements functionality for any entity in the SeaQuest game

@@ -89,7 +89,6 @@ type SeaQuest struct {
 	agent     *player
 	fBullets  []*swimmer
 	moveSpeed int
-	shotTimer int
 	atSurface bool
 
 	eBullets    []*swimmer
@@ -146,7 +145,6 @@ func (s *SeaQuest) Reset() {
 	s.dSpawnTimer = diverSpawnSpeed
 	s.moveSpeed = initMoveInterval
 	s.rampIndex = 0
-	s.shotTimer = 0
 	s.atSurface = true
 	s.terminal = false
 }
@@ -181,10 +179,10 @@ func (s *SeaQuest) Act(a int) (float64, bool, error) {
 	action := s.actionMap[a]
 	switch action {
 	case 'f':
-		if s.shotTimer == 0 {
+		if s.agent.canShoot() {
 			s.fBullets = append(s.fBullets, newBullet(s.agent.x(),
 				s.agent.y(), s.agent.orientedRight()))
-			s.shotTimer = shotCoolDown
+			s.agent.setShotTimer(shotCoolDown)
 		}
 
 	case 'l':
@@ -234,8 +232,8 @@ func (s *SeaQuest) Act(a int) (float64, bool, error) {
 		s.dSpawnTimer--
 	}
 
-	if s.shotTimer > 0 {
-		s.shotTimer--
+	if !s.agent.canShoot() {
+		s.agent.decrementShotTimer()
 	}
 
 	if s.agent.oxygen() < 0 {
