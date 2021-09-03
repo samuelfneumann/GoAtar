@@ -67,6 +67,11 @@ ch := 1 // The channel to get
 m := mat.NewDense(r, c, e.Channel(ch))
 ```
 
+* In *SpaceInvaders*, the game starts with the player's position randomly
+chosen from one of the `cols/2` middle positions. E.g. with the default
+columns set as `10`, the player can start in any `x` position in `{3, 4,
+5, 6, 7}`. This adds a bit of randomness to the game.
+
 ## Visualizing the Environments
 Currently not supported.
 

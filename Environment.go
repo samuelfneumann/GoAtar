@@ -8,6 +8,7 @@ import (
 	"math/rand"
 
 	"github.com/samuelfneumann/goatar/internal/game"
+	"github.com/samuelfneumann/goatar/internal/game/asterix"
 	"github.com/samuelfneumann/goatar/internal/game/breakout"
 	"github.com/samuelfneumann/goatar/internal/game/freeway"
 	"github.com/samuelfneumann/goatar/internal/game/seaquest"
@@ -33,6 +34,9 @@ var (
 func make(game GameName, difficultyRamping bool, seed int64) (game.Game,
 	error) {
 	switch game {
+	case Asterix:
+		return asterix.New(difficultyRamping, seed)
+
 	case Breakout:
 		return breakout.New(difficultyRamping, seed)
 
