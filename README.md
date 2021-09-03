@@ -133,3 +133,12 @@ year = "2019"
 Bellemare, M. G., Naddaf, Y., Veness, J., & Bowling, M. (2013). The arcade learning environment: An evaluation platform for general agents. *Journal of Artificial Intelligence Research*, 47, 253–279.
 
 Mnih, V., Kavukcuoglu, K., Silver, D., Rusu, A. A., Veness, J., Bellemare, M. G., . . . others (2015). Human-level control through deep reinforcement learning. *Nature*, 518(7540), 529.
+
+# ToDo
+- [ ] Make the entire package have a more OOP approach. E.g. instead of each
+package having its own `player`, the `game` package should have an implementation of
+a `player` with decorators so that each sub-package can modify the playerse as
+needed. E.g. `asterix` might need a `NewHorizontalMoving(NewPlayer(...))` and `breakout`
+might need a `NewShooting(NewVerticalMoving(NewHorizontalMoving(NewPlayer(...))))`.
+In this case, the `player` interface can just have a `move(rune)` method which
+takes care of moving based on the action `'u', 'd', 'r', 'l', 'n', 'f'`.
