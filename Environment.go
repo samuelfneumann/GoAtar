@@ -23,7 +23,23 @@ import (
 
 const NumActions int = 6 // All games have 6 actions
 
-//
+// Default colour for plotting
+var defaultColours = newColours([]color.Color{
+	color.RGBA{3, 3, 3, 255},
+	color.RGBA{26, 71, 84, 255},
+	color.RGBA{93, 135, 55, 255},
+	color.RGBA{205, 126, 151, 255},
+	color.RGBA{199, 206, 243, 255},
+	color.RGBA{205, 229, 242, 255},
+	color.RGBA{205, 169, 230, 255},
+	color.RGBA{101, 132, 59, 255},
+	color.RGBA{32, 47, 73, 255},
+	color.RGBA{92, 109, 146, 255},
+	color.RGBA{132, 90, 108, 255},
+	color.RGBA{198, 185, 217, 255},
+})
+
+// GameName represents a legal game that can be played with GoAtar
 type GameName struct {
 	string // Hide the internals so that new GameNames can't be created
 }
@@ -141,15 +157,7 @@ func (e *Environment) DisplayState(filename string, w, h float64) error {
 	}
 
 	// Set colours for heatmap
-	colours := newColours([]color.Color{
-		color.RGBA{30, 30, 30, 255},
-		color.RGBA{0, 63, 92, 255},
-		color.RGBA{88, 80, 141, 255},
-		color.RGBA{188, 80, 144, 255},
-		color.RGBA{255, 99, 97, 255},
-		color.RGBA{255, 166, 0, 255},
-		color.RGBA{72, 143, 49, 255},
-	})
+	colours := defaultColours
 
 	// Generate random colours if above not enough
 	for e.NChannels() > len(colours.Colors()) {
