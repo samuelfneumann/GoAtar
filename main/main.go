@@ -101,13 +101,17 @@ func main() {
 
 	// app.Main()
 
-	env, err := goatar.New(goatar.SpaceInvaders, 0.1, true, 11)
+	env, err := goatar.New(goatar.SeaQuest, 0.1, true, 14)
 	if err != nil {
 		panic(err)
 	}
 
-	for i := 0; i < 330; i++ {
-		env.Act(rand.Intn(6))
+	for i := 0; i < 100; i++ {
+		action := rand.Intn(6)
+		if action == 2 {
+			action = 0
+		}
+		env.Act(action)
 		env.DisplayState(fmt.Sprint(i), 128, 128)
 	}
 

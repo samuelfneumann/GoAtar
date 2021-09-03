@@ -135,10 +135,6 @@ Bellemare, M. G., Naddaf, Y., Veness, J., & Bowling, M. (2013). The arcade learn
 Mnih, V., Kavukcuoglu, K., Silver, D., Rusu, A. A., Veness, J., Bellemare, M. G., . . . others (2015). Human-level control through deep reinforcement learning. *Nature*, 518(7540), 529.
 
 # ToDo
-- [ ] Play each game with the `DisplayState()` to ensure each works as expected, and there are no bugs.
-Some games won't play completely, and e.g. *Freeway* sometimes (when displaying) the chicken jumps back
-and forth from top of the screen to bottom.
-
 - [ ] Make the entire package have a more OOP approach. E.g. instead of each
 package having its own `player`, the `game` package should have an implementation of
 a `player` with decorators so that each sub-package can modify the playerse as
