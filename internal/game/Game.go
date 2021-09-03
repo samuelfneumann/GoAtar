@@ -1,6 +1,8 @@
 package game
 
-import "gonum.org/v1/gonum/mat"
+import (
+	"gonum.org/v1/gonum/mat"
+)
 
 // Concrete implementations of games
 type Game interface {
@@ -98,11 +100,12 @@ func RollRowsUp(matrix *mat.Dense) {
 	tmp2 := make([]float64, c)
 
 	copy(tmp1, matrix.RawRowView(r-1))
-	for i := r - 1; i > -1; i-- {
+	for i := r - 1; i > 0; i-- {
 		copy(tmp2, matrix.RawRowView(i-1))
 		matrix.SetRow(i-1, tmp1)
 		copy(tmp1, tmp2)
 	}
+	matrix.SetRow(r-1, tmp1)
 }
 
 // RollRowsDown rolls the rows of the matrix downwards. Rows that
@@ -118,6 +121,7 @@ func RollRowsDown(matrix *mat.Dense) {
 		matrix.SetRow(i+1, tmp1)
 		copy(tmp1, tmp2)
 	}
+	matrix.SetRow(0, tmp1)
 }
 
 // RollColsLeft rolls the columns of the matrix left. Columns that
@@ -127,25 +131,39 @@ func RollColsLeft(matrix *mat.Dense) {
 	tmp1 := make([]float64, r)
 	tmp2 := make([]float64, r)
 
-	copy(tmp1, matrix.ColView(c-1).(*mat.VecDense).RawVector().Data)
-	for i := c - 1; i > -1; i-- {
-		copy(tmp2, matrix.ColView(i-1).(*mat.VecDense).RawVector().Data)
+	vecToSlice := func(slice []float64, vec mat.Vector) {
+		for i := 0; i < vec.Len(); i++ {
+			slice[i] = vec.AtVec(i)
+		}
+	}
+
+	vecToSlice(tmp1, matrix.ColView(c-1))
+	for i := c - 1; i > 0; i-- {
+		vecToSlice(tmp2, matrix.ColView(i-1))
 		matrix.SetCol(i-1, tmp1)
 		copy(tmp1, tmp2)
 	}
+	matrix.SetCol(c-1, tmp1)
 }
 
 // RollColsRight rolls the columns of the matrix right. Columns that
 // would go off the matrix's side wrap around back to the other side.
 func RollColsRight(matrix *mat.Dense) {
 	r, c := matrix.Dims()
-	tmp1 := make([]float64, c)
-	tmp2 := make([]float64, c)
+	tmp1 := make([]float64, r)
+	tmp2 := make([]float64, r)
 
-	copy(tmp1, matrix.ColView(0).(*mat.VecDense).RawVector().Data)
-	for i := 0; i < r-1; i++ {
-		copy(tmp2, matrix.ColView(i+1).(*mat.VecDense).RawVector().Data)
+	vecToSlice := func(slice []float64, vec mat.Vector) {
+		for i := 0; i < vec.Len(); i++ {
+			slice[i] = vec.AtVec(i)
+		}
+	}
+
+	vecToSlice(tmp1, matrix.ColView(0))
+	for i := 0; i < c-1; i++ {
+		vecToSlice(tmp2, matrix.ColView(i+1))
 		matrix.SetCol(i+1, tmp1)
 		copy(tmp1, tmp2)
 	}
+	matrix.SetCol(0, tmp1)
 }
