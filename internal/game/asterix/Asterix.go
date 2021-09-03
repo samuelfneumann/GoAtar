@@ -107,7 +107,7 @@ func (a *Asterix) Reset() {
 // resulted in the game terminating
 func (a *Asterix) Act(act int) (float64, bool, error) {
 	if act >= len(a.actionMap) || act < 0 {
-		return -1, false, fmt.Errorf("act: invalid action %v ∉ [0, %v)",
+		return -1, a.terminal, fmt.Errorf("act: invalid action %v ∉ [0, %v)",
 			act, len(a.actionMap))
 	}
 
@@ -172,7 +172,7 @@ func (a *Asterix) Act(act int) (float64, bool, error) {
 				a.entities[i] = nil
 			}
 
-			if entity.x() == a.agent.x() || entity.y() == a.agent.y() {
+			if entity.x() == a.agent.x() && entity.y() == a.agent.y() {
 				if entity.isGold() {
 					a.entities[i] = nil
 					reward++
@@ -242,7 +242,7 @@ func (a *Asterix) State() ([]float64, error) {
 		}
 
 		if backX >= 0 && backX <= cols-1 {
-			state[rows*cols*a.channels["trail"]+entity.y()*cols*backX] = 1.0
+			state[rows*cols*a.channels["trail"]+entity.y()*cols+backX] = 1.0
 		}
 	}
 	return state, nil

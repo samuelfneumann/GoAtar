@@ -8,6 +8,9 @@
 # Ignore vscode files
 .vscode
 
+# Ignore images
+**/*.png
+
 # Test binary, built with `go test -c`
 *.test
 
