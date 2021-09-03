@@ -1,3 +1,18 @@
+// Package spaceinvaders implements the SpaceInvaders game
+//
+//The player controls a cannon at the bottom of the screen and can
+// shoot bullets upward at a cluster of aliens above. The aliens move
+// across the screen until one of them hits the edge, at which point
+// they all move down and switch directions. The current alien direction
+// is indicated by 2 channels (one for left and one for right) one of
+// which is active at the location of each alien. A reward of +1 is
+// given each time an alien is shot, and that alien is also removed.
+// The aliens will also shoot bullets back at the player. When few
+// aliens are left, alien speed will begin to increase. When only one
+// alien is left, it will move at one cell per frame. When a wave of
+// aliens is fully cleared, a new one will spawn which moves at a
+// slightly faster speed than the last. Termination occurs when an
+// alien or bullet hits the player.
 package spaceinvaders
 
 import (
@@ -19,28 +34,56 @@ const (
 	shotCoolDown      = 5
 )
 
+// SpaceInvaders implements the SpaceInvaders game. In this game,
+// the player must shoot all enemy aliens, while avoiding being
+// shot by the enemies.
+//
+// See the package documentation for more details
+//
+// Underlying state is represented as a *player, denoting the player's
+// position, and a *mat.Dense denoting the positions of the player's
+// bullets, the enemies' bullets, and the aliens. Each element in these
+// *mat.Dense represent a specific position on the screen.
+//
+// State observations consist of a 6 x rows x cols tensor. Each of the
+// six channels represents:
+//
+//	1. Player's position (sometimes referred to as the cannon)
+//	2. Positions of aliens
+//	3. The trail behind the aliens, if they moved left last, else 0
+//	4. The trail behind the aliens, if they moved right last, else 0
+//	5. Positions of player's bullets
+//	6. Positions of enemies' bullets
+//
+// The state observation tensor contains only 0's and 1's, where a 1
+// indicates that a game element exists at the position and a 0
+// indicates that no entity exists at that position. For example,
+// if a 1 exists at row i and column j of channel 2, this means that
+// an enemy alien is in position (j, i).
 type SpaceInvaders struct {
 	channels  map[string]int
 	actionMap []rune
 	rng       *rand.Rand
 	ramping   bool
+	rampIndex int
+	terminal  bool
 
-	agent             *player
-	fBullets          *mat.Dense
+	agent    *player
+	fBullets *mat.Dense
+
 	eBullets          *mat.Dense
 	aliens            *mat.Dense
 	alienDir          int
 	enemyMoveInterval int
 	alienMoveTimer    int
 	alienShotTimer    int
-	rampIndex         int
-	terminal          bool
 
 	// currentState caches the last state of the environment to increase
 	// computational efficiency if State() is called many times
 	currentState []float64
 }
 
+// New returns a new SpaceInvaders game
 func New(ramping bool, seed int64) (game.Game, error) {
 	channels := map[string]int{
 		"cannon":          0,
@@ -64,6 +107,8 @@ func New(ramping bool, seed int64) (game.Game, error) {
 	return spaceInvaders, nil
 }
 
+// Act takes one environmental step, given some action a, and returns
+// the reward for that action and whether the episode is finished.
 func (s *SpaceInvaders) Act(a int) (float64, bool, error) {
 	if a >= len(s.actionMap) || a < 0 {
 		return -1, false, fmt.Errorf("act: invalid action %v ∉ [0, %v)",
@@ -183,6 +228,7 @@ func (s *SpaceInvaders) Act(a int) (float64, bool, error) {
 	return reward, s.terminal, nil
 }
 
+// State returns the current state observation
 func (s *SpaceInvaders) State() ([]float64, error) {
 	if s.currentState != nil {
 		return s.currentState, nil
@@ -232,6 +278,7 @@ func (s *SpaceInvaders) State() ([]float64, error) {
 	return state, nil
 }
 
+// Reset resets the environment to some starting state
 func (s *SpaceInvaders) Reset() {
 	start := s.rng.Intn(rows/4) + rows/2
 	s.agent = newPlayer(start, 0)
@@ -258,6 +305,8 @@ func (s *SpaceInvaders) Reset() {
 	s.currentState = nil
 }
 
+// Channel returns the channel at index i of the state observation
+// tensor
 func (s *SpaceInvaders) Channel(i int) ([]float64, error) {
 	if i >= s.NChannels() {
 		return nil, fmt.Errorf("channel: index out of range [%v] with "+
@@ -275,14 +324,18 @@ func (s *SpaceInvaders) Channel(i int) ([]float64, error) {
 	return state[rows*cols*i : rows*cols*(i+1)], nil
 }
 
+// NChannels returns the number of channels in the state observation
+// tensor
 func (s *SpaceInvaders) NChannels() int {
 	return len(s.channels)
 }
 
+// DifficultyRamp returns the current difficulty level
 func (s *SpaceInvaders) DifficultyRamp() int {
 	return s.rampIndex
 }
 
+// StateShape returns the shape of state observation tensors
 func (s *SpaceInvaders) StateShape() []int {
 	return []int{s.NChannels(), rows, cols}
 }
@@ -303,6 +356,9 @@ func (s *SpaceInvaders) MinimalActionSet() []int {
 	return minimalIntActions
 }
 
+// nearestAlien finds the alien closest to pos in terms of Manhattan
+// distance. This is usaully used to find the alien that will shoot
+// next.
 func (s *SpaceInvaders) nearestAlien(pos int) (x, y int) {
 	searchOrder := make([]int, rows)
 	for i := range searchOrder {
