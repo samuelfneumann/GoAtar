@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"time"
 
 	"github.com/samuelfneumann/goatar"
 	"gonum.org/v1/gonum/mat"
@@ -101,7 +102,8 @@ func main() {
 
 	// app.Main()
 
-	env, err := goatar.New(goatar.SeaQuest, 0.1, true, 14)
+	env, err := goatar.New(goatar.SpaceInvaders, 0.1, true,
+		time.Now().UnixNano())
 	if err != nil {
 		panic(err)
 	}

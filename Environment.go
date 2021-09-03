@@ -134,7 +134,7 @@ func (e *Environment) DisplayState(filename string, w, h float64) error {
 		for row := 0; row < r; row++ {
 			for col := 0; col < c; col++ {
 				if chData[row*c+col] != 0 {
-					data.Set(row, col, chData[row*c+col]*float64(ch+1))
+					data.Set(r-row-1, col, chData[row*c+col]*float64(ch+1))
 				}
 			}
 		}
