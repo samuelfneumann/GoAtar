@@ -1,3 +1,13 @@
+// Package asterix implements the Asterix game
+//
+// The player can move freely along the 4 cardinal directions.
+// Enemies and treasure spawn from the sides. A reward of +1 is given
+// for picking up treasure. Termination occurs if the player makes
+// contact with an enemy. Enemy and treasure direction are indicated
+// by a trail channel. Difficulty is periodically increased by
+// increasing the speed and spawn rate of enemies and treasure.
+//
+// Enemies and treasure only move after the agent has moved.
 package asterix
 
 import (
@@ -19,6 +29,28 @@ const (
 	maxEntities int = 8
 )
 
+// Asterix implements the Asterix game. In this game, the player must
+// run around, avoiding enemies and picking up gold.
+//
+// See the package documentation for more details
+//
+// Underlying state is represented as a slice of *Entity and a *player.
+// Each of these structs holds the position and orientation of the
+// corresponding game element.
+//
+// State observations consist of a 4 x rows x cols tensor. Each of the
+// four channels represent the following:
+//
+//	1. The position of the player
+//	2. The positions of enemies
+//	3. The trails behind enemies and gold, indicating movement direction
+//	4. The positions of gold
+//
+// The state observation tensor contains only 0's and 1's, where a 1
+// indicates that a game element exists at the position and a 0
+// indicates that no entity exists at that position. For example,
+// if a 1 exists at row i and column j of channel 3, this means that
+// a gold is in position (j, i).
 type Asterix struct {
 	channels  map[string]int
 	actionMap []rune
@@ -36,6 +68,7 @@ type Asterix struct {
 	terminal   bool
 }
 
+// New returns a new Asterix game
 func New(ramping bool, seed int64) (game.Game, error) {
 	channels := map[string]int{
 		"player": 0,
@@ -57,17 +90,21 @@ func New(ramping bool, seed int64) (game.Game, error) {
 	return asterix, nil
 }
 
+// Reset resets the environment to some starting state
 func (a *Asterix) Reset() {
 	a.entities = make([]*Entity, maxEntities)
 	a.spawnSpeed = initSpawnSpeed
 	a.spawnTimer = a.spawnSpeed
 	a.moveSpeed = initMoveInterval
-	a.agent = newPlayer(rows/2, cols/2, 0, a.moveSpeed)
+	a.agent = newPlayer(rows/2, cols/2, a.moveSpeed)
 	a.rampTimer = rampInterval
 	a.rampIndex = 0
 	a.terminal = false
 }
 
+// Act takes one environmental step given some action and returns the
+// reward for that action, as well as whether or not the action
+// resulted in the game terminating
 func (a *Asterix) Act(act int) (float64, bool, error) {
 	if act >= len(a.actionMap) || act < 0 {
 		return -1, false, fmt.Errorf("act: invalid action %v ∉ [0, %v)",
@@ -176,6 +213,7 @@ func (a *Asterix) Act(act int) (float64, bool, error) {
 	return reward, a.terminal, nil
 }
 
+// State returns the state observation tensor
 func (a *Asterix) State() ([]float64, error) {
 	state := make([]float64, rows*cols*a.NChannels())
 
@@ -210,6 +248,8 @@ func (a *Asterix) State() ([]float64, error) {
 	return state, nil
 }
 
+// Channel returns the channel at index i of the state observation
+// tensor
 func (a *Asterix) Channel(i int) ([]float64, error) {
 	if i >= a.NChannels() {
 		return nil, fmt.Errorf("channel: index out of range [%v] with "+
@@ -227,14 +267,19 @@ func (a *Asterix) Channel(i int) ([]float64, error) {
 	return state[rows*cols*i : rows*cols*(i+1)], nil
 }
 
+// DifficultyRamp returns the current difficulty level of the game
 func (a *Asterix) DifficultyRamp() int {
 	return a.rampIndex
 }
 
+// NChannels returns the number of channels in a state observation
+// tensor
 func (a *Asterix) NChannels() int {
 	return len(a.channels)
 }
 
+// StateShape returns the shape of the state observation tensors as
+// (channels, rows, cols)
 func (a *Asterix) StateShape() []int {
 	return []int{a.NChannels(), rows, cols}
 }
@@ -255,6 +300,7 @@ func (a *Asterix) MinimalActionSet() []int {
 	return minimalIntActions
 }
 
+// spawnEntity spawns an entity into the game
 func (a *Asterix) spawnEntity() {
 	lr := a.rng.Intn(2)
 	isGold := a.rng.Intn(3) == 0
