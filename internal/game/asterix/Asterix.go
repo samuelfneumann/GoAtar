@@ -58,7 +58,7 @@ type Asterix struct {
 	ramping   bool
 
 	agent    *player
-	entities []*Entity
+	entities []*entity
 
 	spawnSpeed int
 	spawnTimer int
@@ -92,7 +92,7 @@ func New(ramping bool, seed int64) (game.Game, error) {
 
 // Reset resets the environment to some starting state
 func (a *Asterix) Reset() {
-	a.entities = make([]*Entity, maxEntities)
+	a.entities = make([]*entity, maxEntities)
 	a.spawnSpeed = initSpawnSpeed
 	a.spawnTimer = a.spawnSpeed
 	a.moveSpeed = initMoveInterval

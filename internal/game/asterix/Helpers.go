@@ -71,23 +71,23 @@ func (p *player) moveDown() {
 	p.setY(game.MinInt(rows-2, p.y()+1))
 }
 
-// Entity implements an entity in the Asterix game, which is either an
+// entity implements an entity in the Asterix game, which is either an
 // enemy or a gold
-type Entity struct {
+type entity struct {
 	xPos          int
 	yPos          int
 	moveDirection int
 	gold          bool
 }
 
-// newEntity returns a new entity
-func newEntity(x, y int, orientedRight, isGold bool) *Entity {
+// newentity returns a new entity
+func newEntity(x, y int, orientedRight, isGold bool) *entity {
 	direction := -1
 	if orientedRight {
 		direction = 1
 	}
 
-	return &Entity{
+	return &entity{
 		xPos:          x,
 		yPos:          y,
 		moveDirection: direction,
@@ -96,31 +96,31 @@ func newEntity(x, y int, orientedRight, isGold bool) *Entity {
 }
 
 // move moves the entity in its movement direction
-func (e *Entity) move() {
+func (e *entity) move() {
 	e.xPos += e.moveDirection
 }
 
 // isGold returns whether the entity is gold or not
-func (e *Entity) isGold() bool {
+func (e *entity) isGold() bool {
 	return e.gold
 }
 
 // direction returns the direction of movement of the entity
-func (e *Entity) direction() int {
+func (e *entity) direction() int {
 	return e.moveDirection
 }
 
 // orientedRight returns whether the entity is moving to the right
-func (e *Entity) orientedRight() bool {
+func (e *entity) orientedRight() bool {
 	return e.direction() == 1
 }
 
 // x returns the x position of the entity
-func (e *Entity) x() int {
+func (e *entity) x() int {
 	return e.xPos
 }
 
 // y returns the y position of the entity
-func (e *Entity) y() int {
+func (e *entity) y() int {
 	return e.yPos
 }
