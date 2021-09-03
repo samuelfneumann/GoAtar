@@ -181,7 +181,9 @@ func (s *SpaceInvaders) Act(a int) (float64, bool, error) {
 		// Shoot from the nearest alien
 		s.alienShotTimer = enemyShotInterval
 		nearestAlienX, nearestAlienY := s.nearestAlien(s.agent.x())
-		s.eBullets.Set(nearestAlienX, nearestAlienY, 1.0)
+		if nearestAlienX > 0 && nearestAlienY > 0 {
+			s.eBullets.Set(nearestAlienX, nearestAlienY, 1.0)
+		}
 	}
 
 	// Find where the aliens were killed
@@ -265,12 +267,20 @@ func (s *SpaceInvaders) State() ([]float64, error) {
 	// Set the friendly bullet channel
 	start = rows * cols * (s.channels["friendly_bullet"])
 	end = rows * cols * (s.channels["friendly_bullet"] + 1)
-	copy(state[start:end], s.fBullets.RawMatrix().Data)
+	copied = copy(state[start:end], s.fBullets.RawMatrix().Data)
+	if copied != rows*cols {
+		return nil, fmt.Errorf("state: could not copy friendly bullets " +
+			"channel into state observation tensor")
+	}
 
 	// Set the enemy bullet channel
 	start = rows * cols * (s.channels["enemy_bullet"])
 	end = rows * cols * (s.channels["enemy_bullet"] + 1)
-	copy(state[start:end], s.eBullets.RawMatrix().Data)
+	copied = copy(state[start:end], s.eBullets.RawMatrix().Data)
+	if copied != rows*cols {
+		return nil, fmt.Errorf("state: could not copy enemy bullets " +
+			"channel into state observation tensor")
+	}
 
 	// Cache the state observation
 	s.currentState = state
@@ -357,7 +367,7 @@ func (s *SpaceInvaders) MinimalActionSet() []int {
 }
 
 // nearestAlien finds the alien closest to pos in terms of Manhattan
-// distance. This is usaully used to find the alien that will shoot
+// distance. This is usually used to find the alien that will shoot
 // next.
 func (s *SpaceInvaders) nearestAlien(pos int) (x, y int) {
 	searchOrder := make([]int, rows)
