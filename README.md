@@ -16,7 +16,7 @@ From the [MinAtar](https://github.com/kenjyoung/MinAtar) Github page:
 
 ## Quick Start
 To use GoAtar, you'll need `Go` 1.16 or later. GoAtar does not provide any implementations of learning algorithms. To install GoAtar:
-```
+```go
 go get -u github.com/samuelfneumann/goatar
 ```
 
@@ -41,7 +41,7 @@ and [gonum/mat](https://pkg.go.dev/gonum.org/v1/gonum/mat) because the
 underlying `[]float64` for a matrix or tensor can easily be set: no copying
 of data is needed (which is much more efficient than the `Python` implementation
 of using `bool`s to represent positions). For example:
-```
+```go
 e := ... // New GoAtar environment
 
 // Gorgonia tensors can be efficiently constructed from the State() method.
