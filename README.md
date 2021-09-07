@@ -84,7 +84,7 @@ if err := env.DisplayState(filename, w, h); err != nil {
 }
 ```
 
-Interavively viewing the environment while the agent learns is not supported, and likely will never be implemented unless some kind person opens a pull request :).
+Interactively viewing the environment while the agent learns is not supported, and likely will never be implemented unless some kind person opens a pull request :).
 
 Similarly, playing each of the games in a GUI will also likely not be supported for a while, unless a pull request is opened.
 
