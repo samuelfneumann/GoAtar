@@ -73,7 +73,20 @@ columns set as `10`, the player can start in any `x` position in `{3, 4,
 5, 6, 7}`. This adds a bit of randomness to the game.
 
 ## Visualizing the Environments
-Currently not supported.
+To visualize the environment, the `DisplayState()` method will save a PNG of the current environmental state. 
+```go
+filename := fmt.Sprintf("timestep_%v", i) // i is the timestep number
+w := 512 // Width of PNG
+h := 512 // Height of PNG
+
+if err := env.DisplayState(filename, w, h); err != nil {
+	// Do something
+}
+```
+
+Interavively viewing the environment while the agent learns is not supported, and likely will never be implemented unless some kind person opens a pull request :).
+
+Similarly, playing each of the games in a GUI will also likely not be supported for a while, unless a pull request is opened.
 
 ## Support for Other Languages
 - [Python](https://github.com/kenjyoung/MinAtar)
